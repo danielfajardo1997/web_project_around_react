@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useContext } from 'react';
 import type { PopupConfig, CardData } from '../../types/types';
-import avatar from '../../images/avatar.jpg';
+import CurrentUserContext from '../../contexts/CurrentUserContext';
 import Card from './Card/Card';
 import Popup from './Popup/Popup';
 import NewCard from './Popup/NewCard/NewCard';
@@ -8,61 +8,25 @@ import EditProfile from './Popup/EditProfile/EditProfile';
 import EditAvatar from './Popup/EditAvatar/EditAvatar';
 import ImagePopup from './Popup/ImagePopup/ImagePopup';
 
-const cards: CardData[] = [
-  {
-    isLiked: false,
-    _id: '5d1f0611d321eb4bdcd707dd',
-    name: 'Valle de Yosemite',
-    link: 'https://practicum-content.s3.us-west-1.amazonaws.com/web-code/moved_yosemite.jpg',
-    owner: '5d1f0611d321eb4bdcd707dd',
-    createdAt: '2019-07-05T08:10:57.741Z',
-  },
-  {
-    isLiked: true,
-    _id: '5d1f064ed321eb4bdcd707de',
-    name: 'Lago Louise',
-    link: 'https://practicum-content.s3.us-west-1.amazonaws.com/web-code/moved_lake-louise.jpg',
-    owner: '5d1f0611d321eb4bdcd707dd',
-    createdAt: '2019-07-05T08:11:58.324Z',
-  },
-  {
-    isLiked: false,
-    _id: '5d1f0684d321eb4bdcd707df',
-    name: 'Montañas Calvas',
-    link: 'https://practicum-content.s3.us-west-1.amazonaws.com/web-code/moved_bald-mountains.jpg',
-    owner: '5d1f0611d321eb4bdcd707dd',
-    createdAt: '2019-07-05T08:12:52.219Z',
-  },
-  {
-    isLiked: false,
-    _id: '5d1f06afd321eb4bdcd707e0',
-    name: 'Latemar',
-    link: 'https://practicum-content.s3.us-west-1.amazonaws.com/web-code/moved_latemar.jpg',
-    owner: '5d1f0611d321eb4bdcd707dd',
-    createdAt: '2019-07-05T08:13:35.451Z',
-  },
-  {
-    isLiked: false,
-    _id: '5d1f06dbd321eb4bdcd707e1',
-    name: 'Parque Nacional de la Vanoise',
-    link: 'https://practicum-content.s3.us-west-1.amazonaws.com/web-code/moved_vanoise.jpg',
-    owner: '5d1f0611d321eb4bdcd707dd',
-    createdAt: '2019-07-05T08:14:19.883Z',
-  },
-  {
-    isLiked: false,
-    _id: '5d1f0705d321eb4bdcd707e2',
-    name: 'Lago di Braies',
-    link: 'https://practicum-content.s3.us-west-1.amazonaws.com/web-code/moved_lago.jpg',
-    owner: '5d1f0611d321eb4bdcd707dd',
-    createdAt: '2019-07-05T08:15:01.128Z',
-  },
-];
+type MainProps = {
+  cards: CardData[];
+  popup: PopupConfig | null;
+  handleOpenPopup: (popup: PopupConfig) => void;
+  handleClosePopup: () => void;
+  handleCardLike: (card: CardData) => void;
+  handleCardDelete: (card: CardData) => void;
+};
 
-console.log(cards);
-
-export default function Main(): React.JSX.Element {
-  const [popup, setPopup] = useState<PopupConfig | null>(null);
+export default function Main(props: MainProps): React.JSX.Element {
+  const {
+    cards,
+    popup,
+    handleOpenPopup,
+    handleClosePopup,
+    handleCardLike,
+    handleCardDelete,
+  } = props;
+  const { currentUser } = useContext(CurrentUserContext);
 
   const editProfilePopup: PopupConfig = {
     title: 'Editar perfil',
@@ -79,14 +43,6 @@ export default function Main(): React.JSX.Element {
     children: <EditAvatar />,
   };
 
-  function handleOpenPopup(popup: PopupConfig): void {
-    setPopup(popup);
-  }
-
-  function handleClosePopup(): void {
-    setPopup(null);
-  }
-
   function handleCardClick(card: CardData): void {
     handleOpenPopup({
       children: <ImagePopup name={card.name} link={card.link} />,
@@ -98,19 +54,19 @@ export default function Main(): React.JSX.Element {
       <section className="profile page__section">
         <img
           className="profile__image"
-          src={avatar}
-          alt="Avatar"
+          src={currentUser?.avatar}
+          alt={currentUser?.name}
           onClick={() => handleOpenPopup(editAvatarPopup)}
         />
         <div className="profile__info">
-          <h1 className="profile__title">Jacques Cousteau</h1>
+          <h1 className="profile__title">{currentUser?.name}</h1>
           <button
             aria-label="Editar perfil"
             className="profile__edit-button"
             type="button"
             onClick={() => handleOpenPopup(editProfilePopup)}
           />
-          <p className="profile__description">Explorador</p>
+          <p className="profile__description">{currentUser?.about}</p>
         </div>
         <button
           aria-label="Agregar tarjeta"
@@ -122,7 +78,13 @@ export default function Main(): React.JSX.Element {
       <section className="cards page__section">
         <ul className="cards__list">
           {cards.map((card) => (
-            <Card key={card._id} card={card} onCardClick={handleCardClick} />
+            <Card
+              key={card._id}
+              card={card}
+              onCardClick={handleCardClick}
+              onCardLike={handleCardLike}
+              onCardDelete={handleCardDelete}
+            />
           ))}
         </ul>
       </section>
