@@ -6,9 +6,8 @@ import type {
   CardFormData,
 } from '../types/types';
 
-// TODO: reemplaza estos valores con tu URL base y tu token del cohort de TripleTen.
-const BASE_URL = 'https://around-api.en.tripleten-services.com/v1/TU_COHORT';
-const AUTHORIZATION_TOKEN = 'TU_TOKEN_AQUI';
+const BASE_URL = 'https://around-api.es.tripleten-services.com/v1';
+const AUTHORIZATION_TOKEN = 'b176338a-7293-4b08-9ce0-a70c0fd452c5';
 
 class Api {
   private baseUrl: string;
